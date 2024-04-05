@@ -1,0 +1,100 @@
+import { Button, VerticalBox, TextEdit, HorizontalBox, LineEdit, ComboBox, GroupBox } from "std-widgets.slint";
+
+export component AppWindow inherits Window {
+    in-out property<int> counter: 42;
+    in-out property<string> input: "";
+    in-out property<string> pangram: "qwertyuiopasdfghjklzxcvbnm";
+    in property<string> output: "";
+    in-out property<int> action: 0;
+    in property<bool> has-error: false;
+    in property<string> missing-char: "";
+
+    callback update();
+    callback add-char-to-pangram(string);
+
+    GridLayout {
+        padding: 16px;
+        spacing: 16px;
+        Row {
+            VerticalBox {
+                padding: 0;
+                Text {
+                    text: "Text k zašifrování";
+                    font-weight: 700;
+                }
+                inputEdit := TextEdit {
+                    text <=> root.input;
+                    edited => { root.update() }
+                }
+            }
+            VerticalBox {
+                padding: 0;
+                Text {
+                    text: "Zašifrovaný text";
+                    font-weight: 700;
+                }
+
+                TextEdit {
+                    text: output;
+                    read-only: true;
+                    enabled: !has-error;
+                }
+
+                if has-error: GroupBox { HorizontalBox {
+                    VerticalBox {
+                        horizontal-stretch: 1;
+                        Text {
+                            text: "Chyba";
+                            font-weight: 700;
+                            color: #ff0c59;
+                        }
+                        Text {
+                            text: "V pangramu chybí znak '\{root.missing-char}'";
+                            color: #ff0c59;
+                        }
+                    }
+                    Button {
+                        horizontal-stretch: 0;
+                        text: "Přidat '\{root.missing-char}'";
+                        clicked() => { root.add-char-to-pangram(root.missing-char) }
+                    }
+                }}
+
+
+            }
+        }
+
+        Row {
+            VerticalBox {
+                padding: 0;
+                Text {
+                    text: "Pangram";
+                    font-weight: 700;
+                }
+                pangramEdit := LineEdit {
+                    text <=> root.pangram;
+                    edited => { root.update() }
+                }
+                Text {
+                    text: "Poznámka: Jako konec pangramu se přidá linebreak";
+                }
+            }
+
+
+            VerticalBox {
+                padding: 0;
+                Text {
+                    text: "Akce";
+                    font-weight: 700;
+                }
+                ComboBox {
+                    model: ["Zašifrovat", "Dešifrovat"];
+                    current-index <=> root.action;
+                    selected => { root.update() }
+                }
+            }
+        }
+
+
+    }
+}
